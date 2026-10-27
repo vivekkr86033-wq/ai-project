@@ -1,0 +1,34 @@
+[
+  {
+    "id": "R1",
+    "rule": "Attendance is mandatory. Students missing more than 3 classes must meet with the instructor."
+  },
+  {
+    "id": "R2",
+    "rule": "Assignments must be submitted before the deadline. Late submissions lose 10% per day, up to 3 days."
+  },
+  {
+    "id": "R3",
+    "rule": "Academic integrity: plagiarism or AI-generated submissions without attribution will result in a zero grade."
+  },
+  {
+    "id": "R4",
+    "rule": "Mobile phones must be silenced during lectures."
+  },
+  {
+    "id": "R5",
+    "rule": "Lab sessions require safety goggles where applicable. Food and drinks are not allowed in the computer lab."
+  },
+  {
+    "id": "R6",
+    "rule": "Students may request office hours by email at least 24 hours in advance."
+  },
+  {
+    "id": "R7",
+    "rule": "Group projects: each member must contribute. Peer evaluations are part of the grading rubric."
+  },
+  {
+    "id": "R8",
+    "rule": "Exams are closed-book unless otherwise stated. Allowed materials will be specified per exam."
+  }
+]

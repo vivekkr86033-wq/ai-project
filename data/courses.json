@@ -1,0 +1,107 @@
+[
+  {
+    "id": "CS101",
+    "name": "Introduction to Computer Science",
+    "description": "Foundational course covering algorithms, data structures, and programming basics.",
+    "syllabus": [
+      "Week 1-2: Introduction to Programming & Python Basics",
+      "Week 3-4: Control Structures and Functions",
+      "Week 5-6: Data Structures — Lists, Stacks, Queues",
+      "Week 7-8: Sorting and Searching Algorithms",
+      "Week 9-10: Object-Oriented Programming",
+      "Week 11-12: File I/O and Exception Handling",
+      "Week 13-14: Introduction to Databases",
+      "Week 15-16: Final Project and Review"
+    ],
+    "schedule": "Mon/Wed/Fri 09:00–10:00 AM, Room 201",
+    "assignments": [
+      {
+        "title": "Assignment 1: Python Basics",
+        "description": "Write programs demonstrating variables, loops, and functions.",
+        "deadline": "2026-11-10",
+        "max_marks": 100
+      },
+      {
+        "title": "Assignment 2: Data Structures",
+        "description": "Implement a stack and queue using linked lists.",
+        "deadline": "2026-11-24",
+        "max_marks": 100
+      },
+      {
+        "title": "Final Project: Mini Application",
+        "description": "Build a small command-line application using concepts from the entire course.",
+        "deadline": "2026-12-15",
+        "max_marks": 200
+      }
+    ],
+    "instructor": "Dr. Alice Martin"
+  },
+  {
+    "id": "AI201",
+    "name": "Introduction to Artificial Intelligence",
+    "description": "Survey course on AI paradigms, search, knowledge representation, and machine learning fundamentals.",
+    "syllabus": [
+      "Week 1-2: What is AI? History and Foundations",
+      "Week 3-4: Intelligent Agents and Rational Behavior",
+      "Week 5-6: Search Algorithms — BFS, DFS, A*",
+      "Week 7-8: Knowledge Representation and Reasoning",
+      "Week 9-10: Machine Learning Basics — Supervised Learning",
+      "Week 11-12: Neural Networks and Deep Learning Introduction",
+      "Week 13-14: Natural Language Processing and RAG",
+      "Week 15-16: Ethics in AI and Course Review"
+    ],
+    "schedule": "Tue/Thu 11:00 AM–12:30 PM, Room 305",
+    "assignments": [
+      {
+        "title": "Assignment 1: Search Algorithms",
+        "description": "Implement BFS and A* on a grid-world problem.",
+        "deadline": "2026-11-12",
+        "max_marks": 100
+      },
+      {
+        "title": "Assignment 2: ML Classification",
+        "description": "Train and evaluate a classifier on the Iris dataset.",
+        "deadline": "2026-11-28",
+        "max_marks": 100
+      },
+      {
+        "title": "Final Project: AI Application",
+        "description": "Design an AI agent for a classroom task and present findings.",
+        "deadline": "2026-12-18",
+        "max_marks": 200
+      }
+    ],
+    "instructor": "Prof. Bob Singh"
+  },
+  {
+    "id": "MATH150",
+    "name": "Linear Algebra for Computing",
+    "description": "Vectors, matrices, transformations, eigenvalues, and applications in data science.",
+    "syllabus": [
+      "Week 1-2: Systems of Linear Equations",
+      "Week 3-4: Vectors and Vector Spaces",
+      "Week 5-6: Matrices and Matrix Operations",
+      "Week 7-8: Determinants",
+      "Week 9-10: Eigenvalues and Eigenvectors",
+      "Week 11-12: Orthogonality and Least Squares",
+      "Week 13-14: Singular Value Decomposition",
+      "Week 15-16: Applications in ML and Review"
+    ],
+    "schedule": "Mon/Wed 02:00–03:30 PM, Room 110",
+    "assignments": [
+      {
+        "title": "Problem Set 1: Systems & Vectors",
+        "description": "Solve systems of equations and perform vector operations.",
+        "deadline": "2026-11-08",
+        "max_marks": 50
+      },
+      {
+        "title": "Problem Set 2: Eigenvalue Analysis",
+        "description": "Compute eigenvalues and eigenvectors for given matrices.",
+        "deadline": "2026-12-01",
+        "max_marks": 50
+      }
+    ],
+    "instructor": "Dr. Carol Zhang"
+  }
+]

@@ -1,0 +1,653 @@
+{
+  "timestamp": "2026-10-27 21:06:54",
+  "intent_classification": {
+    "metric": "intent_classification_accuracy",
+    "correct": 12,
+    "total": 12,
+    "accuracy": 1.0,
+    "details": [
+      {
+        "id": "T01",
+        "question": "What is the schedule for Introduction to Computer Science?",
+        "expected": "course_info",
+        "predicted": "course_info",
+        "correct": true,
+        "scores": {
+          "course_info": 2,
+          "classroom_rules": 0,
+          "syllabus_help": 1,
+          "assignment_guidance": 0,
+          "learning_resources": 0,
+          "general_question": 0
+        }
+      },
+      {
+        "id": "T02",
+        "question": "What is the attendance policy?",
+        "expected": "classroom_rules",
+        "predicted": "classroom_rules",
+        "correct": true,
+        "scores": {
+          "course_info": 0,
+          "classroom_rules": 5,
+          "syllabus_help": 1,
+          "assignment_guidance": 0,
+          "learning_resources": 0,
+          "general_question": 0
+        }
+      },
+      {
+        "id": "T03",
+        "question": "What topics are covered in AI201?",
+        "expected": "syllabus_help",
+        "predicted": "syllabus_help",
+        "correct": true,
+        "scores": {
+          "course_info": 0,
+          "classroom_rules": 0,
+          "syllabus_help": 3,
+          "assignment_guidance": 0,
+          "learning_resources": 0,
+          "general_question": 0
+        }
+      },
+      {
+        "id": "T04",
+        "question": "When is Assignment 1 for CS101 due?",
+        "expected": "assignment_guidance",
+        "predicted": "assignment_guidance",
+        "correct": true,
+        "scores": {
+          "course_info": 2,
+          "classroom_rules": 0,
+          "syllabus_help": 0,
+          "assignment_guidance": 4,
+          "learning_resources": 1,
+          "general_question": 0
+        }
+      },
+      {
+        "id": "T05",
+        "question": "What is the late submission penalty?",
+        "expected": "classroom_rules",
+        "predicted": "classroom_rules",
+        "correct": true,
+        "scores": {
+          "course_info": 0,
+          "classroom_rules": 6,
+          "syllabus_help": 1,
+          "assignment_guidance": 0,
+          "learning_resources": 0,
+          "general_question": 0
+        }
+      },
+      {
+        "id": "T06",
+        "question": "Who teaches Linear Algebra?",
+        "expected": "course_info",
+        "predicted": "course_info",
+        "correct": true,
+        "scores": {
+          "course_info": 2,
+          "classroom_rules": 0,
+          "syllabus_help": 0,
+          "assignment_guidance": 0,
+          "learning_resources": 0,
+          "general_question": 0
+        }
+      },
+      {
+        "id": "T07",
+        "question": "Are phones allowed in class?",
+        "expected": "classroom_rules",
+        "predicted": "classroom_rules",
+        "correct": true,
+        "scores": {
+          "course_info": 2,
+          "classroom_rules": 3,
+          "syllabus_help": 0,
+          "assignment_guidance": 0,
+          "learning_resources": 0,
+          "general_question": 0
+        }
+      },
+      {
+        "id": "T08",
+        "question": "Tell me about the final project for AI201",
+        "expected": "assignment_guidance",
+        "predicted": "assignment_guidance",
+        "correct": true,
+        "scores": {
+          "course_info": 0,
+          "classroom_rules": 0,
+          "syllabus_help": 0,
+          "assignment_guidance": 2,
+          "learning_resources": 1,
+          "general_question": 0
+        }
+      },
+      {
+        "id": "T09",
+        "question": "What is the rule about academic integrity?",
+        "expected": "classroom_rules",
+        "predicted": "classroom_rules",
+        "correct": true,
+        "scores": {
+          "course_info": 0,
+          "classroom_rules": 4,
+          "syllabus_help": 1,
+          "assignment_guidance": 0,
+          "learning_resources": 0,
+          "general_question": 0
+        }
+      },
+      {
+        "id": "T10",
+        "question": "Hello, how are you?",
+        "expected": "general_question",
+        "predicted": "general_question",
+        "correct": true,
+        "scores": {
+          "course_info": 0,
+          "classroom_rules": 0,
+          "syllabus_help": 0,
+          "assignment_guidance": 0,
+          "learning_resources": 0,
+          "general_question": 1
+        }
+      },
+      {
+        "id": "T11",
+        "question": "What week covers Neural Networks in AI201?",
+        "expected": "syllabus_help",
+        "predicted": "syllabus_help",
+        "correct": true,
+        "scores": {
+          "course_info": 0,
+          "classroom_rules": 0,
+          "syllabus_help": 4,
+          "assignment_guidance": 0,
+          "learning_resources": 0,
+          "general_question": 0
+        }
+      },
+      {
+        "id": "T12",
+        "question": "Can I eat in the computer lab?",
+        "expected": "classroom_rules",
+        "predicted": "classroom_rules",
+        "correct": true,
+        "scores": {
+          "course_info": 0,
+          "classroom_rules": 2,
+          "syllabus_help": 0,
+          "assignment_guidance": 0,
+          "learning_resources": 0,
+          "general_question": 0
+        }
+      }
+    ]
+  },
+  "database_lookups": {
+    "metric": "database_lookup_accuracy",
+    "correct": 9,
+    "total": 11,
+    "accuracy": 0.8182,
+    "details": [
+      {
+        "id": "T01",
+        "question": "What is the schedule for Introduction to Computer Science?",
+        "expected_terms": [
+          "Mon/Wed/Fri",
+          "09:00",
+          "Room 201"
+        ],
+        "found_terms": [
+          "Mon/Wed/Fri",
+          "09:00",
+          "Room 201"
+        ],
+        "missing_terms": [],
+        "correct": true,
+        "action_used": "database_lookup",
+        "expected_action": "database_lookup",
+        "action_correct": true
+      },
+      {
+        "id": "T02",
+        "question": "What is the attendance policy?",
+        "expected_terms": [
+          "attendance",
+          "mandatory",
+          "3 classes"
+        ],
+        "found_terms": [
+          "attendance",
+          "mandatory",
+          "3 classes"
+        ],
+        "missing_terms": [],
+        "correct": true,
+        "action_used": "database_lookup",
+        "expected_action": "database_lookup",
+        "action_correct": true
+      },
+      {
+        "id": "T03",
+        "question": "What topics are covered in AI201?",
+        "expected_terms": [
+          "Intelligent Agents",
+          "Search Algorithms"
+        ],
+        "found_terms": [
+          "Intelligent Agents",
+          "Search Algorithms"
+        ],
+        "missing_terms": [],
+        "correct": true,
+        "action_used": "combined_lookup",
+        "expected_action": "database_lookup",
+        "action_correct": false
+      },
+      {
+        "id": "T04",
+        "question": "When is Assignment 1 for CS101 due?",
+        "expected_terms": [
+          "2026-11-10",
+          "Python Basics"
+        ],
+        "found_terms": [
+          "Python Basics"
+        ],
+        "missing_terms": [
+          "2026-11-10"
+        ],
+        "correct": false,
+        "action_used": "combined_lookup",
+        "expected_action": "database_lookup",
+        "action_correct": false
+      },
+      {
+        "id": "T05",
+        "question": "What is the late submission penalty?",
+        "expected_terms": [
+          "10%",
+          "per day",
+          "3 days"
+        ],
+        "found_terms": [
+          "10%",
+          "per day",
+          "3 days"
+        ],
+        "missing_terms": [],
+        "correct": true,
+        "action_used": "database_lookup",
+        "expected_action": "database_lookup",
+        "action_correct": true
+      },
+      {
+        "id": "T06",
+        "question": "Who teaches Linear Algebra?",
+        "expected_terms": [
+          "Carol Zhang"
+        ],
+        "found_terms": [
+          "Carol Zhang"
+        ],
+        "missing_terms": [],
+        "correct": true,
+        "action_used": "database_lookup",
+        "expected_action": "database_lookup",
+        "action_correct": true
+      },
+      {
+        "id": "T07",
+        "question": "Are phones allowed in class?",
+        "expected_terms": [
+          "phone",
+          "silenced"
+        ],
+        "found_terms": [
+          "phone",
+          "silenced"
+        ],
+        "missing_terms": [],
+        "correct": true,
+        "action_used": "database_lookup",
+        "expected_action": "database_lookup",
+        "action_correct": true
+      },
+      {
+        "id": "T08",
+        "question": "Tell me about the final project for AI201",
+        "expected_terms": [
+          "AI Application",
+          "2026-12-18"
+        ],
+        "found_terms": [],
+        "missing_terms": [
+          "AI Application",
+          "2026-12-18"
+        ],
+        "correct": false,
+        "action_used": "combined_lookup",
+        "expected_action": "database_lookup",
+        "action_correct": false
+      },
+      {
+        "id": "T09",
+        "question": "What is the rule about academic integrity?",
+        "expected_terms": [
+          "plagiarism",
+          "zero grade"
+        ],
+        "found_terms": [
+          "plagiarism",
+          "zero grade"
+        ],
+        "missing_terms": [],
+        "correct": true,
+        "action_used": "database_lookup",
+        "expected_action": "database_lookup",
+        "action_correct": true
+      },
+      {
+        "id": "T11",
+        "question": "What week covers Neural Networks in AI201?",
+        "expected_terms": [
+          "Neural Networks",
+          "Deep Learning"
+        ],
+        "found_terms": [
+          "Neural Networks",
+          "Deep Learning"
+        ],
+        "missing_terms": [],
+        "correct": true,
+        "action_used": "combined_lookup",
+        "expected_action": "database_lookup",
+        "action_correct": false
+      },
+      {
+        "id": "T12",
+        "question": "Can I eat in the computer lab?",
+        "expected_terms": [
+          "food",
+          "drinks",
+          "not allowed"
+        ],
+        "found_terms": [
+          "food",
+          "drinks",
+          "not allowed"
+        ],
+        "missing_terms": [],
+        "correct": true,
+        "action_used": "database_lookup",
+        "expected_action": "database_lookup",
+        "action_correct": true
+      }
+    ]
+  },
+  "source_attribution": {
+    "metric": "source_attribution_rate",
+    "attributed": 11,
+    "total": 11,
+    "rate": 1.0,
+    "details": [
+      {
+        "id": "T01",
+        "question": "What is the schedule for Introduction to Computer Science?",
+        "expected_source": "Course Database",
+        "actual_sources": [
+          "Course Database: Introduction to Computer Science (CS101)",
+          "Course Database: Introduction to Artificial Intelligence (AI201)",
+          "Course Database: Linear Algebra for Computing (MATH150)",
+          "Classroom Rules: R5"
+        ],
+        "has_attribution": true
+      },
+      {
+        "id": "T02",
+        "question": "What is the attendance policy?",
+        "expected_source": "Classroom Rules",
+        "actual_sources": [
+          "Classroom Rules: R1"
+        ],
+        "has_attribution": true
+      },
+      {
+        "id": "T03",
+        "question": "What topics are covered in AI201?",
+        "expected_source": "Course Database",
+        "actual_sources": [
+          "Course Database: Introduction to Artificial Intelligence (AI201)",
+          "ai_study_notes.md (What is Artificial Intelligence?)",
+          "ai_study_notes.md (Ethics in AI)",
+          "ai_study_notes.md (Machine Learning Basics)",
+          "ai_study_notes.md (Natural Language Processing)",
+          "ai_study_notes.md (Intelligent Agents)"
+        ],
+        "has_attribution": true
+      },
+      {
+        "id": "T04",
+        "question": "When is Assignment 1 for CS101 due?",
+        "expected_source": "Course Database",
+        "actual_sources": [
+          "Course Database: Introduction to Computer Science (CS101)",
+          "Course Database: Introduction to Artificial Intelligence (AI201)",
+          "Classroom Rules: R2",
+          "ai_study_notes.md (Ethics in AI)",
+          "ai_study_notes.md (Search Algorithms)",
+          "ai_study_notes.md (What is Artificial Intelligence?)",
+          "python_reference.txt (1)",
+          "ai_study_notes.md (Natural Language Processing)"
+        ],
+        "has_attribution": true
+      },
+      {
+        "id": "T05",
+        "question": "What is the late submission penalty?",
+        "expected_source": "Classroom Rules",
+        "actual_sources": [
+          "Classroom Rules: R2",
+          "Classroom Rules: R3"
+        ],
+        "has_attribution": true
+      },
+      {
+        "id": "T06",
+        "question": "Who teaches Linear Algebra?",
+        "expected_source": "Course Database",
+        "actual_sources": [
+          "Course Database: Linear Algebra for Computing (MATH150)"
+        ],
+        "has_attribution": true
+      },
+      {
+        "id": "T07",
+        "question": "Are phones allowed in class?",
+        "expected_source": "Classroom Rules",
+        "actual_sources": [
+          "Course Database: Introduction to Artificial Intelligence (AI201)",
+          "Classroom Rules: R1",
+          "Classroom Rules: R4",
+          "Classroom Rules: R5",
+          "Classroom Rules: R8"
+        ],
+        "has_attribution": true
+      },
+      {
+        "id": "T08",
+        "question": "Tell me about the final project for AI201",
+        "expected_source": "Course Database",
+        "actual_sources": [
+          "Course Database: Introduction to Artificial Intelligence (AI201)",
+          "Course Database: Introduction to Computer Science (CS101)",
+          "Classroom Rules: R7",
+          "ai_study_notes.md (What is Artificial Intelligence?)",
+          "ai_study_notes.md (Ethics in AI)",
+          "ai_study_notes.md (Neural Networks)",
+          "ai_study_notes.md (Intelligent Agents)",
+          "ai_study_notes.md (Search Algorithms)"
+        ],
+        "has_attribution": true
+      },
+      {
+        "id": "T09",
+        "question": "What is the rule about academic integrity?",
+        "expected_source": "Classroom Rules",
+        "actual_sources": [
+          "Classroom Rules: R3"
+        ],
+        "has_attribution": true
+      },
+      {
+        "id": "T11",
+        "question": "What week covers Neural Networks in AI201?",
+        "expected_source": "Course Database",
+        "actual_sources": [
+          "Course Database: Introduction to Artificial Intelligence (AI201)",
+          "Course Database: Introduction to Computer Science (CS101)",
+          "Course Database: Linear Algebra for Computing (MATH150)",
+          "ai_study_notes.md (What is Artificial Intelligence?)",
+          "ai_study_notes.md (Neural Networks)",
+          "ai_study_notes.md (Ethics in AI)",
+          "ai_study_notes.md (Machine Learning Basics)",
+          "ai_study_notes.md (Search Algorithms)"
+        ],
+        "has_attribution": true
+      },
+      {
+        "id": "T12",
+        "question": "Can I eat in the computer lab?",
+        "expected_source": "Classroom Rules",
+        "actual_sources": [
+          "Course Database: Introduction to Computer Science (CS101)",
+          "Classroom Rules: R5"
+        ],
+        "has_attribution": true
+      }
+    ]
+  },
+  "missing_evidence": {
+    "metric": "missing_evidence_handling",
+    "graceful": 1,
+    "total": 3,
+    "rate": 0.3333,
+    "details": [
+      {
+        "question": "What is the quantum mechanics homework for next week?",
+        "confidence_score": 0.705,
+        "confidence_label": "Strong Evidence",
+        "confidence_appropriate": false,
+        "no_fabrication": true,
+        "graceful": false
+      },
+      {
+        "question": "Can you change my grade to an A?",
+        "confidence_score": 0.589,
+        "confidence_label": "Moderate Evidence",
+        "confidence_appropriate": true,
+        "no_fabrication": true,
+        "graceful": true
+      },
+      {
+        "question": "What is Professor Smith's phone number?",
+        "confidence_score": 0.85,
+        "confidence_label": "Strong Evidence",
+        "confidence_appropriate": false,
+        "no_fabrication": true,
+        "graceful": false
+      }
+    ]
+  },
+  "retrieval_recall": {
+    "metric": "retrieval_recall@5",
+    "retrieved": 11,
+    "total": 11,
+    "recall": 1.0,
+    "details": [
+      {
+        "id": "T01",
+        "query": "What is the schedule for Introduction to Computer Science?",
+        "num_retrieved": 5,
+        "top_similarity": 0.3728,
+        "retrieved": true
+      },
+      {
+        "id": "T02",
+        "query": "What is the attendance policy?",
+        "num_retrieved": 5,
+        "top_similarity": 0.0704,
+        "retrieved": true
+      },
+      {
+        "id": "T03",
+        "query": "What topics are covered in AI201?",
+        "num_retrieved": 5,
+        "top_similarity": 0.433,
+        "retrieved": true
+      },
+      {
+        "id": "T04",
+        "query": "When is Assignment 1 for CS101 due?",
+        "num_retrieved": 5,
+        "top_similarity": 0.165,
+        "retrieved": true
+      },
+      {
+        "id": "T05",
+        "query": "What is the late submission penalty?",
+        "num_retrieved": 5,
+        "top_similarity": 0.069,
+        "retrieved": true
+      },
+      {
+        "id": "T06",
+        "query": "Who teaches Linear Algebra?",
+        "num_retrieved": 5,
+        "top_similarity": 0.2232,
+        "retrieved": true
+      },
+      {
+        "id": "T07",
+        "query": "Are phones allowed in class?",
+        "num_retrieved": 5,
+        "top_similarity": 0.0983,
+        "retrieved": true
+      },
+      {
+        "id": "T08",
+        "query": "Tell me about the final project for AI201",
+        "num_retrieved": 5,
+        "top_similarity": 0.4957,
+        "retrieved": true
+      },
+      {
+        "id": "T09",
+        "query": "What is the rule about academic integrity?",
+        "num_retrieved": 5,
+        "top_similarity": 0.3238,
+        "retrieved": true
+      },
+      {
+        "id": "T11",
+        "query": "What week covers Neural Networks in AI201?",
+        "num_retrieved": 5,
+        "top_similarity": 0.4398,
+        "retrieved": true
+      },
+      {
+        "id": "T12",
+        "query": "Can I eat in the computer lab?",
+        "num_retrieved": 5,
+        "top_similarity": 0.1372,
+        "retrieved": true
+      }
+    ]
+  },
+  "elapsed_seconds": 9.74
+}

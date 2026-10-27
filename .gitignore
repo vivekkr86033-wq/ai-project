@@ -1,0 +1,30 @@
+# Environments and secrets
+.env
+.env.local
+*.env
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environment
+.venv/
+env/
+venv/
+ENV/
+
+# Testing and cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Data cache and models
+data/index/
+.cache/
+huggingface/

@@ -1,0 +1,82 @@
+Introduction to Python Programming — Quick Reference Guide
+
+Chapter 1: Variables and Data Types
+
+Python supports several built-in data types:
+- Integers (int): whole numbers like 1, 42, -7
+- Floating point (float): decimal numbers like 3.14, -0.001
+- Strings (str): text enclosed in quotes like "hello"
+- Booleans (bool): True or False
+- Lists: ordered, mutable collections like [1, 2, 3]
+- Tuples: ordered, immutable collections like (1, 2, 3)
+- Dictionaries: key-value pairs like {"name": "Alice", "age": 20}
+
+Variables in Python are dynamically typed. You don't need to declare the type explicitly.
+
+Chapter 2: Control Structures
+
+Conditional Statements:
+- if, elif, else for branching logic
+- Comparison operators: ==, !=, <, >, <=, >=
+- Logical operators: and, or, not
+
+Loops:
+- for loop: iterates over a sequence
+- while loop: repeats while a condition is true
+- break: exits the loop
+- continue: skips to the next iteration
+
+Chapter 3: Functions
+
+Functions are defined using the def keyword. They help organize code into reusable blocks.
+- Parameters can have default values
+- *args for variable positional arguments
+- **kwargs for variable keyword arguments
+- Return values using the return statement
+- Docstrings document function behavior
+
+Chapter 4: Data Structures
+
+Lists:
+- Ordered, mutable sequence
+- Methods: append(), insert(), remove(), pop(), sort()
+- List comprehensions for concise creation
+
+Stacks:
+- Last-In-First-Out (LIFO) data structure
+- Operations: push (add to top), pop (remove from top), peek (view top)
+- Can be implemented using Python lists
+
+Queues:
+- First-In-First-Out (FIFO) data structure
+- Operations: enqueue (add to back), dequeue (remove from front)
+- Use collections.deque for efficient implementation
+
+Linked Lists:
+- Nodes connected by references/pointers
+- Types: singly linked, doubly linked, circular
+- Advantages: efficient insertion/deletion
+
+Chapter 5: Sorting Algorithms
+
+Bubble Sort: O(n^2) — repeatedly swaps adjacent elements
+Selection Sort: O(n^2) — finds minimum and places it
+Insertion Sort: O(n^2) — builds sorted array one element at a time
+Merge Sort: O(n log n) — divide and conquer, stable
+Quick Sort: O(n log n) average — partition-based, in-place
+
+Chapter 6: Object-Oriented Programming
+
+Classes define objects with attributes and methods.
+- __init__: constructor method
+- self: reference to the instance
+- Inheritance: creating child classes
+- Encapsulation: hiding internal state
+- Polymorphism: same interface, different implementations
+
+Chapter 7: File I/O and Exception Handling
+
+File operations: open(), read(), write(), close()
+Use with statement for safe file handling.
+Exception handling: try, except, finally, raise
+Common exceptions: FileNotFoundError, ValueError, TypeError
