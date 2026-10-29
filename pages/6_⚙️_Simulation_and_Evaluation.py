@@ -21,8 +21,11 @@ from src.config import (
     llm_available,
     get_llm_provider,
     get_openai_model,
+    get_gemini_model,
+    get_active_model,
     mask_api_key,
     get_openai_api_key,
+    get_gemini_api_key,
 )
 
 
@@ -96,19 +99,30 @@ def render():
 
         st.markdown("#### 🤖 LLM & Generative Assistant Settings")
         c1, c2 = st.columns(2)
+        provider = get_llm_provider()
         with c1:
-            st.markdown(f"**LLM Provider:** `{get_llm_provider().upper()}`")
-            st.markdown(f"**OpenAI Model:** `{get_openai_model()}`")
-            st.markdown(f"**OpenAI API Key:** `{mask_api_key()}`")
-        with c2:
-            if llm_available():
-                st.success("✅ OpenAI Integration Active")
+            st.markdown(f"**LLM Provider:** `{provider.upper()}`")
+            if provider == "gemini":
+                st.markdown(f"**Gemini Model:** `{get_gemini_model()}`")
+                st.markdown(f"**Gemini API Key:** `{mask_api_key(provider='gemini')}`")
+            elif provider == "openai":
+                st.markdown(f"**OpenAI Model:** `{get_openai_model()}`")
+                st.markdown(f"**OpenAI API Key:** `{mask_api_key(provider='openai')}`")
             else:
-                st.info("⚡ Offline Mode Active: Using deterministic explainable fallback engine (no API key required).")
+                st.markdown("**Configured Model:** `none`")
+                st.markdown("**API Key:** `Not configured`")
+        with c2:
+            gemini_live = st.session_state.get("gemini_live_success", False)
+            if provider == "gemini" and gemini_live:
+                st.success("✅ Gemini AI Integration Active (Real API Verified)")
+            elif provider == "openai" and st.session_state.get("openai_live_success", False):
+                st.success("✅ OpenAI Integration Active (Real API Verified)")
+            else:
+                st.info("⚡ Offline / Fallback Active: Using deterministic explainable fallback engine (Zero API Cost).")
 
         st.caption(
             "🔒 **Security Note:** API keys are never displayed in full or committed to version control. "
-            "To enable OpenAI generation, set `LLM_PROVIDER=openai` and `OPENAI_API_KEY=sk-...` inside the `.env` file."
+            "To configure, set `LLM_PROVIDER=gemini` and `GEMINI_API_KEY=...` (or `LLM_PROVIDER=openai` and `OPENAI_API_KEY=sk-...`) inside the `.env` file."
         )
 
         st.markdown("---")

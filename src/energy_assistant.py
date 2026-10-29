@@ -10,6 +10,7 @@ Works with:
 """
 
 import re
+import time
 from typing import Dict, List, Any, Optional
 from src import config
 from src.energy_models import Appliance, HourlyTelemetry, BatteryStorage
@@ -30,6 +31,7 @@ def generate_energy_explanation(
     Returns: {
         "answer": str,
         "mode": "llm" or "grounded_extractive",
+        "provider": "gemini", "openai", or "fallback",
         "model": str,
         "citations": List[str],
         "key_metrics": Dict[str, Any]
@@ -43,9 +45,42 @@ def generate_energy_explanation(
         baseline_result=baseline_result,
     )
 
+    provider = config.get_llm_provider()
+
+    # Provider validation
+    valid_provider, provider_err = config.validate_provider(provider)
+    if not valid_provider:
+        fallback = _grounded_deterministic_assistant(user_query, context_data)
+        fallback["answer"] = (
+            f"> ⚠️ **Configuration Notice:** {provider_err}\n"
+            f"> *Operating in deterministic grounded fallback mode:*\n\n"
+            f"{fallback['answer']}"
+        )
+        fallback["error"] = provider_err
+        fallback["provider"] = "fallback"
+        return fallback
+
     if not force_fallback and config.llm_available():
-        return _call_openai_assistant(user_query, context_data)
-    elif not force_fallback and config.get_llm_provider() == "openai":
+        if provider == "gemini":
+            return _call_gemini_assistant(user_query, context_data)
+        elif provider == "openai":
+            return _call_openai_assistant(user_query, context_data)
+        else:
+            if config.get_gemini_api_key():
+                return _call_gemini_assistant(user_query, context_data)
+            return _call_openai_assistant(user_query, context_data)
+    elif not force_fallback and provider == "gemini":
+        fallback = _grounded_deterministic_assistant(user_query, context_data)
+        fallback["answer"] = (
+            "> ⚠️ **Gemini Configuration Notice:** `LLM_PROVIDER=gemini` is selected in `.env`, but no valid `GEMINI_API_KEY` was found.\n"
+            "> To use Gemini, add your API key to `.env` (e.g. `GEMINI_API_KEY=...`).\n"
+            "> *Operating in deterministic grounded fallback mode:*\n\n"
+            f"{fallback['answer']}"
+        )
+        fallback["error"] = "Missing or placeholder GEMINI_API_KEY in .env"
+        fallback["provider"] = "fallback"
+        return fallback
+    elif not force_fallback and provider == "openai":
         # User explicitly requested OpenAI, but no valid key is present
         fallback = _grounded_deterministic_assistant(user_query, context_data)
         fallback["answer"] = (
@@ -55,6 +90,7 @@ def generate_energy_explanation(
             f"{fallback['answer']}"
         )
         fallback["error"] = "Missing or placeholder OPENAI_API_KEY in .env"
+        fallback["provider"] = "fallback"
         return fallback
     else:
         return _grounded_deterministic_assistant(user_query, context_data)
@@ -158,7 +194,27 @@ def _grounded_deterministic_assistant(user_query: str, context_data: Dict[str, A
     context_str = context_data.get("context_str", "")
 
     # Query routing heuristics
-    if any(k in q_lower for k in ["ev", "car", "charger", "charging"]):
+    greeting_triggers = {"hello", "hi", "hey", "howdy", "greetings", "good morning", "good afternoon", "good evening"}
+    cleaned_words = set(re.findall(r"\b\w+\b", q_lower))
+    if cleaned_words.intersection(greeting_triggers) or q_lower.strip() in greeting_triggers or q_lower.startswith(("hello", "hi ", "hey ")):
+        answer = (
+            "### 👋 Hello! Welcome to your Smart Home Energy Assistant\n\n"
+            "I'm here to help you monitor, manage, and optimize your household energy. You can ask me:\n"
+            "- *'Why was my EV charging delayed to 2:00 AM?'*\n"
+            "- *'How much money did the optimizer save me today?'*\n"
+            "- *'How does my battery protect against peak utility rates?'*\n"
+            "- *'What safety rules fired today?'*\n\n"
+            "How can I assist you with your home's energy today?"
+        )
+        return {
+            "answer": answer,
+            "mode": "grounded_extractive",
+            "model": "rule_grounded_fallback",
+            "citations": [],
+            "key_metrics": metrics,
+        }
+
+    elif any(k in q_lower for k in ["ev", "car", "charger", "charging"]):
         answer = (
             "### 🚗 Electric Vehicle Charging Explanation\n\n"
             "Your EV charger (7.0 kW load) was automatically scheduled to run during the **cheapest off-peak hours** "
@@ -226,6 +282,169 @@ def _grounded_deterministic_assistant(user_query: str, context_data: Dict[str, A
     }
 
 
+def _sanitize_error_text(error_msg: str, key: Optional[str] = None) -> str:
+    """Sanitize error messages to ensure API keys are never exposed in logs, exceptions, or UI."""
+    if not error_msg:
+        return "Unknown error"
+    sanitized = str(error_msg)
+    if key and key in sanitized:
+        sanitized = sanitized.replace(key, "[REDACTED]")
+    # Mask common Google/Gemini and OpenAI key signatures if present
+    sanitized = re.sub(r"AIza[0-9A-Za-z\-_]{35}", "[REDACTED]", sanitized)
+    sanitized = re.sub(r"AQ\.[0-9A-Za-z\-_]{40,}", "[REDACTED]", sanitized)
+    sanitized = re.sub(r"sk-[0-9A-Za-z\-_]{20,}", "[REDACTED]", sanitized)
+    return sanitized
+
+
+def _call_gemini_assistant(user_query: str, context_data: Dict[str, Any]) -> Dict[str, Any]:
+    """Call Google Gemini with grounded telemetry context via the official google-genai SDK."""
+    try:
+        from google import genai
+    except ImportError:
+        fallback = _grounded_deterministic_assistant(user_query, context_data)
+        fallback["answer"] = (
+            "> ⚠️ *The `google-genai` package is not installed. Operating in grounded fallback mode.*\n\n"
+            f"{fallback['answer']}"
+        )
+        fallback["error"] = "google-genai package not installed"
+        fallback["provider"] = "fallback"
+        return fallback
+
+    api_key = config.get_gemini_api_key()
+    configured_model = config.get_gemini_model() or "gemini-3.8-flash"
+
+    if not api_key or api_key == "your-gemini-api-key-here":
+        fallback = _grounded_deterministic_assistant(user_query, context_data)
+        fallback["answer"] = (
+            "> ⚠️ **Gemini Configuration Notice:** No valid `GEMINI_API_KEY` was detected in `.env`.\n\n"
+            "To activate Gemini synthesis, please set your key in the project root `.env` file:\n"
+            "```env\nLLM_PROVIDER=gemini\nGEMINI_API_KEY=your_key_here\nGEMINI_MODEL=gemini-3.8-flash\n```\n\n"
+            f"Displaying grounded deterministic response below:\n\n{fallback['answer']}"
+        )
+        fallback["error"] = "Missing GEMINI_API_KEY in environment."
+        fallback["provider"] = "fallback"
+        fallback["model"] = configured_model
+        return fallback
+
+    system_instruction = (
+        "You are an intelligent, friendly AI Smart Home Energy Assistant. "
+        "Your role is to assist homeowners with understanding their smart energy management system, "
+        "appliance scheduling, battery storage, and utility tariffs, as well as conversing politely.\n\n"
+        "Guidelines:\n"
+        "1. For greetings, pleasantries, or general conversational inquiries (e.g., 'Hello', 'Hi', 'How are you?'), "
+        "reply warmly, conversationally, and concisely, offering help with their smart home energy.\n"
+        "2. For energy-related questions, explain the automated decisions citing the verified simulation telemetry, "
+        "appliance schedules, and active rule engine traces without fabricating numbers.\n"
+        "3. Provide actionable, easy-to-understand takeaways."
+    )
+
+    context_str = context_data.get("context_str", "").strip()
+    if context_str:
+        user_prompt = (
+            f"Homeowner Telemetry & Simulation Context:\n"
+            f"----------------------------------------\n"
+            f"{context_str}\n"
+            f"----------------------------------------\n\n"
+            f"Homeowner Message: {user_query}\n\n"
+            f"If this is a greeting or general remark, reply warmly and offer help. "
+            f"If asking about energy, scheduling, or costs, ground your answer in the telemetry above."
+        )
+    else:
+        user_prompt = user_query
+
+    # Target models: configured model first, followed by available responsive models
+    models_to_try = [configured_model]
+    for alt_model in ["gemini-3.5-flash", "gemini-3.1-flash-lite"]:
+        if alt_model not in models_to_try:
+            models_to_try.append(alt_model)
+
+    last_error = None
+    all_errors = []
+    for target_model in models_to_try:
+        for attempt in range(2):
+            try:
+                client = genai.Client(api_key=api_key, http_options={"timeout": 12000})
+                response = client.models.generate_content(
+                    model=target_model,
+                    contents=user_prompt,
+                    config={
+                        "system_instruction": system_instruction,
+                        "temperature": 0.3,
+                    },
+                )
+                answer_text = response.text or ""
+                return {
+                    "answer": answer_text,
+                    "mode": "llm",
+                    "provider": "gemini",
+                    "model": target_model,
+                    "citations": context_data.get("citations", []),
+                    "key_metrics": context_data.get("key_metrics", {}),
+                }
+            except Exception as e:
+                last_error = e
+                all_errors.append((target_model, e))
+                err_str = str(e)
+                # If authentication or bad request, abort trying further
+                if "API_KEY_INVALID" in err_str or "INVALID_ARGUMENT" in err_str or "PERMISSION_DENIED" in err_str:
+                    break
+                # If 503 high demand or 404 not found, immediately move to next model
+                if "503" in err_str or "UNAVAILABLE" in err_str or "NOT_FOUND" in err_str or "404" in err_str:
+                    break
+                if attempt == 0:
+                    time.sleep(0.5)
+
+        err_str = str(last_error) if last_error else ""
+        if "API_KEY_INVALID" in err_str or "INVALID_ARGUMENT" in err_str or "PERMISSION_DENIED" in err_str:
+            break
+
+    # Prioritize 429 quota exhaustion or 400 invalid key over transient 503 errors
+    chosen_error = last_error
+    for m_name, err in all_errors:
+        es = str(err)
+        if "RESOURCE_EXHAUSTED" in es or "429" in es or "API_KEY_INVALID" in es or "400" in es:
+            chosen_error = err
+            break
+
+    # Classify failure and format safe error message with actual reason
+    err_cls = type(chosen_error).__name__ if chosen_error else "Unknown"
+    err_text = str(chosen_error) if chosen_error else ""
+
+    extracted_reason = ""
+    m = re.search(r"'message':\s*'([^']+)'", err_text)
+    if m:
+        extracted_reason = m.group(1)
+    elif hasattr(chosen_error, "message"):
+        extracted_reason = getattr(chosen_error, "message", "")
+    else:
+        extracted_reason = err_text[:200]
+
+    if "API_KEY_INVALID" in err_text or ("400" in err_text and "API key not valid" in err_text):
+        error_msg = f"400 Authentication Error: Invalid or unauthorized GEMINI_API_KEY ({extracted_reason})"
+    elif "RESOURCE_EXHAUSTED" in err_text or "429" in err_text:
+        error_msg = f"429 Quota Exceeded: Gemini API free-tier request limit reached ({extracted_reason})"
+    elif "NOT_FOUND" in err_text or "404" in err_text:
+        error_msg = f"404 Not Found: Model '{configured_model}' is not available or retired ({extracted_reason})"
+    elif "UNAVAILABLE" in err_text or "503" in err_text:
+        error_msg = f"503 Service Unavailable: Model '{configured_model}' is currently experiencing temporary high demand ({extracted_reason})"
+    else:
+        error_msg = f"Gemini API request failed ({err_cls}): {extracted_reason}"
+
+    safe_error_msg = _sanitize_error_text(error_msg, api_key)
+
+    # Fall back safely to grounded deterministic mode
+    fallback = _grounded_deterministic_assistant(user_query, context_data)
+    fallback["answer"] = (
+        f"> ⚠️ **Gemini Generation Notice (Model: `{configured_model}`):** Note: {safe_error_msg}\n"
+        f"> *Operating in deterministic grounded fallback mode:*\n\n"
+        f"{fallback['answer']}"
+    )
+    fallback["error"] = safe_error_msg
+    fallback["provider"] = "fallback"
+    fallback["model"] = configured_model
+    return fallback
+
+
 def _call_openai_assistant(user_query: str, context_data: Dict[str, Any]) -> Dict[str, Any]:
     """Call OpenAI chat completions with grounded telemetry context."""
     try:
@@ -244,30 +463,37 @@ def _call_openai_assistant(user_query: str, context_data: Dict[str, Any]) -> Dic
             f"{fallback['answer']}"
         )
         fallback["error"] = "openai package not installed"
+        fallback["provider"] = "fallback"
         return fallback
 
     api_key = config.get_openai_api_key()
     model = config.get_openai_model() or "gpt-3.5-turbo"
 
     system_prompt = (
-        "You are an expert AI Smart Home Energy Planner and Consultant. "
-        "Your role is to explain automated energy decisions (appliance scheduling, battery arbitrage, "
-        "solar self-consumption, and rule triggers) in clear, friendly, and transparent language.\n\n"
-        "Instructions:\n"
-        "1. Prioritize and cite the supplied telemetry, optimization metrics, and rule traces.\n"
-        "2. Never hallucinate facts or contradict the provided numbers.\n"
-        "3. Explain financial savings ($), carbon reduction (kg CO2), and comfort maintenance.\n"
-        "4. Always present actionable, easy-to-understand takeaways for the homeowner."
+        "You are an intelligent, friendly AI Smart Home Energy Assistant. "
+        "Your role is to assist homeowners with understanding their smart energy management system, "
+        "appliance scheduling, battery storage, and utility tariffs, as well as conversing politely.\n\n"
+        "Guidelines:\n"
+        "1. For greetings, pleasantries, or general conversational inquiries (e.g., 'Hello', 'Hi', 'How are you?'), "
+        "reply warmly, conversationally, and concisely, offering help with their smart home energy.\n"
+        "2. For energy-related questions, explain the automated decisions citing the verified simulation telemetry, "
+        "appliance schedules, and active rule engine traces without fabricating numbers.\n"
+        "3. Provide actionable, easy-to-understand takeaways."
     )
 
-    user_prompt = (
-        f"Verified Telemetry & Optimization Context:\n"
-        f"----------------------------------------\n"
-        f"{context_data.get('context_str', '')}\n"
-        f"----------------------------------------\n\n"
-        f"Homeowner Question: {user_query}\n\n"
-        f"Please provide a grounded, explainable answer citing the relevant numbers and decisions."
-    )
+    context_str = context_data.get("context_str", "").strip()
+    if context_str:
+        user_prompt = (
+            f"Homeowner Telemetry & Simulation Context:\n"
+            f"----------------------------------------\n"
+            f"{context_str}\n"
+            f"----------------------------------------\n\n"
+            f"Homeowner Message: {user_query}\n\n"
+            f"If this is a greeting or general remark, reply warmly and offer help. "
+            f"If asking about energy, scheduling, or costs, ground your answer in the telemetry above."
+        )
+    else:
+        user_prompt = user_query
 
     try:
         client = OpenAI(api_key=api_key, timeout=25.0)
@@ -284,6 +510,7 @@ def _call_openai_assistant(user_query: str, context_data: Dict[str, Any]) -> Dic
         return {
             "answer": answer_text,
             "mode": "llm",
+            "provider": "openai",
             "model": model,
             "citations": context_data.get("citations", []),
             "key_metrics": context_data.get("key_metrics", {}),
@@ -301,12 +528,15 @@ def _call_openai_assistant(user_query: str, context_data: Dict[str, Any]) -> Dic
     except Exception as e:
         error_msg = f"Unexpected generation error ({type(e).__name__})."
 
+    safe_error = _sanitize_error_text(error_msg, api_key)
+
     # Fall back gracefully to grounded deterministic mode
     fallback = _grounded_deterministic_assistant(user_query, context_data)
     fallback["answer"] = (
-        f"> ℹ️ *Note: {error_msg} Displaying grounded deterministic response below.*\n\n"
+        f"> ℹ️ *Note: {safe_error} Displaying grounded deterministic response below.*\n\n"
         f"{fallback['answer']}"
     )
-    fallback["error"] = error_msg
+    fallback["error"] = safe_error
+    fallback["provider"] = "fallback"
     return fallback
 

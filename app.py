@@ -26,7 +26,13 @@ from src.appliance_search import (
     run_astar_search,
     run_constraint_satisfaction_search,
 )
-from src.config import llm_available, get_llm_provider, get_openai_model
+from src.config import (
+    llm_available,
+    get_llm_provider,
+    get_openai_model,
+    get_gemini_model,
+    get_active_model,
+)
 
 # ── Streamlit Page Configuration ───────────────────────────
 st.set_page_config(
@@ -169,10 +175,13 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("### 🤖 Intelligence System Status")
 
-    if llm_available():
-        st.success(f"🧠 Generative Assistant: **{get_llm_provider().upper()}** ({get_openai_model()})")
+    provider = get_llm_provider()
+    if llm_available() and provider == "gemini":
+        st.success(f"🧠 Generative Assistant: **Gemini AI Active** (`{get_gemini_model()}`)")
+    elif llm_available() and provider == "openai":
+        st.success(f"🧠 Generative Assistant: **OpenAI Active** (`{get_openai_model()}`)")
     else:
-        st.info("⚡ Explainability: **Deterministic Grounded Fallback** (Zero API Cost)")
+        st.info("⚡ Explainability: **Deterministic Fallback** (Zero API Cost)")
 
     st.caption("A* Search • Forward-Chaining Rules • Multi-Agent Control")
 
@@ -372,7 +381,7 @@ with c2:
         <h4>💬 Explainable Generative Assistant</h4>
         <p style="color:#64748b; font-size:0.9rem;">
             Ask natural language questions about why your EV was delayed, how the battery saved money,
-            or what rules fired. Powered by OpenAI or grounded deterministic fallback.
+            or what rules fired. Powered by Gemini / OpenAI or grounded deterministic fallback.
         </p>
         <a href="/Explainable_Energy_Assistant" target="_self" style="color:#2563eb; font-weight:600; text-decoration:none;">Open Energy Assistant →</a>
     </div>

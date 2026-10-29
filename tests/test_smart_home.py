@@ -280,6 +280,7 @@ class TestExplainableEnergyAssistant:
         mock_client.chat.completions.create.return_value = MagicMock(choices=[mock_choice])
 
         with patch("src.config.llm_available", return_value=True), \
+             patch("src.config.get_llm_provider", return_value="openai"), \
              patch("src.config.get_openai_api_key", return_value="sk-test-key-12345"), \
              patch("src.config.get_openai_model", return_value="gpt-3.5-turbo"), \
              patch("openai.OpenAI", return_value=mock_client):
@@ -289,4 +290,38 @@ class TestExplainableEnergyAssistant:
                 force_fallback=False,
             )
             assert res["mode"] == "llm"
+            assert res["provider"] == "openai"
             assert "EV charging was shifted" in res["answer"]
+
+    def test_mocked_gemini_call(self):
+        mock_response = MagicMock()
+        mock_response.text = "Gemini explanation: EV was scheduled for 2:00 AM off-peak."
+        mock_client = MagicMock()
+        mock_client.models.generate_content.return_value = mock_response
+
+        with patch("src.config.llm_available", return_value=True), \
+             patch("src.config.get_llm_provider", return_value="gemini"), \
+             patch("src.config.get_gemini_api_key", return_value="AQ.test-key-1234567890"), \
+             patch("src.config.get_gemini_model", return_value="gemini-3.8-flash"), \
+             patch("google.genai.Client", return_value=mock_client):
+
+            res = generate_energy_explanation(
+                "Why was my EV charging delayed?",
+                force_fallback=False,
+            )
+            assert res["mode"] == "llm"
+            assert res["provider"] == "gemini"
+            assert "EV was scheduled for 2:00 AM" in res["answer"]
+
+    def test_gemini_fallback_on_api_error(self):
+        with patch("src.config.llm_available", return_value=True), \
+             patch("src.config.get_llm_provider", return_value="gemini"), \
+             patch("src.config.get_gemini_api_key", return_value="AQ.test-key-1234567890"), \
+             patch("google.genai.Client", side_effect=Exception("API Error")):
+
+            res = generate_energy_explanation(
+                "Why was my EV charging delayed?",
+                force_fallback=False,
+            )
+            assert res["mode"] == "grounded_extractive"
+            assert "Electric Vehicle" in res["answer"]

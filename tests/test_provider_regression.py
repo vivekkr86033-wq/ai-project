@@ -127,3 +127,48 @@ class TestProviderConfigurationAndFallback:
                         assert res["mode"] == "grounded_extractive"
                         assert "Note:" in res["answer"]
                         assert "Energy Cost" in res["answer"]
+
+    def test_provider_gemini_missing_key_gives_clear_notice(self):
+        from src.energy_assistant import generate_energy_explanation
+        with patch("src.config.get_llm_provider", return_value="gemini"):
+            with patch("src.config.llm_available", return_value=False):
+                res = generate_energy_explanation("Explain my EV charging schedule")
+                assert res["mode"] == "grounded_extractive"
+                assert "Gemini Configuration Notice" in res["answer"]
+                assert "GEMINI_API_KEY" in res["answer"]
+
+    def test_custom_gemini_model_passed_dynamically(self):
+        """Verify user-configured Gemini model (e.g. gemini-3.8-flash) is passed dynamically."""
+        from src.energy_assistant import generate_energy_explanation
+        custom_model = "gemini-3.8-flash"
+
+        mock_response = MagicMock()
+        mock_response.text = "Gemini synthesized answer using custom model."
+        mock_client = MagicMock()
+        mock_client.models.generate_content.return_value = mock_response
+
+        with patch("src.config.get_llm_provider", return_value="gemini"):
+            with patch("src.config.llm_available", return_value=True):
+                with patch("src.config.get_gemini_api_key", return_value="AQ.valid-test-key-12345678"):
+                    with patch("src.config.get_gemini_model", return_value=custom_model):
+                        with patch("google.genai.Client", return_value=mock_client):
+                            res = generate_energy_explanation("Why was EV delayed?")
+                            assert res["mode"] == "llm"
+                            assert res["provider"] == "gemini"
+                            assert res["model"] == custom_model
+
+    def test_gemini_api_error_falls_back_safely_and_hides_key(self):
+        """Verify Gemini API failures fall back cleanly without exposing secret API key."""
+        from src.energy_assistant import generate_energy_explanation
+
+        secret_key = "AQ.my-super-secret-key-1234567890"
+
+        with patch("src.config.get_llm_provider", return_value="gemini"):
+            with patch("src.config.llm_available", return_value=True):
+                with patch("src.config.get_gemini_api_key", return_value=secret_key):
+                    with patch("google.genai.Client", side_effect=Exception(f"API key {secret_key} rejected")):
+                        res = generate_energy_explanation("How much money did I save?")
+                        assert res["mode"] == "grounded_extractive"
+                        assert "Note:" in res["answer"]
+                        assert secret_key not in res["answer"]
+                        assert secret_key not in str(res.get("error", ""))
