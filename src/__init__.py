@@ -19,6 +19,13 @@ from src.config import (
     check_gemini_connection,
     reload_config,
 )
+from src.ui_theme import (
+    inject_custom_css,
+    apply_plotly_theme,
+    render_hero_banner,
+    render_kpi_card,
+    render_interactive_energy_topology,
+)
 
 __all__ = [
     "SUPPORTED_PROVIDERS",
@@ -35,4 +42,9 @@ __all__ = [
     "llm_available",
     "check_gemini_connection",
     "reload_config",
+    "inject_custom_css",
+    "apply_plotly_theme",
+    "render_hero_banner",
+    "render_kpi_card",
+    "render_interactive_energy_topology",
 ]

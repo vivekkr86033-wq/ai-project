@@ -18,13 +18,33 @@ from src.config import (
     get_active_model,
     check_gemini_connection,
 )
+from src.ui_theme import (
+    inject_custom_css,
+    render_hero_banner,
+    render_sidebar_header,
+    render_sidebar_footer,
+)
 
 
 def render():
-    st.markdown("## 💬 Explainable Generative Energy Assistant")
-    st.markdown(
-        "Ask natural-language questions about automated energy decisions, tariff impacts, battery operations, "
-        "and daily savings. Responses are strictly grounded in real-time telemetry, A* optimization paths, and symbolic rule traces."
+    inject_custom_css()
+
+    with st.sidebar:
+        render_sidebar_header()
+        st.markdown("#### 💬 Module Navigation")
+        st.caption("Active Module: **Explainable Energy Assistant**")
+        st.markdown("---")
+        render_sidebar_footer()
+
+    render_hero_banner(
+        title="💬 Explainable Generative Energy Assistant",
+        subtitle="Ask natural language questions about automated energy decisions, tariff impacts, battery operations, and daily savings. Responses are strictly grounded in real-time telemetry, A* optimization paths, and symbolic rule traces.",
+        badges=[
+            ("🧠 Telemetry-Grounded RAG", "ai"),
+            ("🛡️ Hallucination-Free Synthesis", "battery"),
+            ("⚡ Real-Time Rule Audit Citations", "solar"),
+            ("🔒 Zero API Key Leakage", "agent"),
+        ],
     )
 
     # Initialize chat history and live API status
@@ -38,7 +58,7 @@ def render():
         st.session_state.dev_mode = False
 
     # Mode Selector Header
-    top_col1, top_col2 = st.columns([2.5, 1.5])
+    top_col1, top_col2 = st.columns([2.4, 1.6])
 
     with top_col2:
         c_mode, c_dev = st.columns(2)
@@ -73,18 +93,39 @@ def render():
         provider = get_llm_provider()
         active_model = get_gemini_model()
 
-        # Display "Gemini AI Active" when Gemini is configured and available
+        # Display status badge
         if not force_fallback and provider == "gemini" and llm_available():
-            st.success(f"🤖 Powered by **Gemini AI Active** (`{active_model}`) with Telemetry Grounding")
+            st.markdown(f"""
+            <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.35); padding: 0.65rem 1.1rem; border-radius: 12px; display:inline-flex; align-items:center;">
+                <span class="status-pulse pulse-green"></span>
+                <span style="color:#34d399; font-weight:700; font-size:0.92rem;">Gemini AI Active</span>
+                <span style="color:#94a3b8; font-size:0.85rem; margin-left:8px;">(`{active_model}`) with Physical Telemetry Grounding</span>
+            </div>
+            """, unsafe_allow_html=True)
         elif not force_fallback and provider == "openai" and llm_available():
-            st.success(f"🤖 Powered by **OpenAI Active** (`{get_openai_model()}`) with Telemetry Grounding")
+            st.markdown(f"""
+            <div style="background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(59, 130, 246, 0.35); padding: 0.65rem 1.1rem; border-radius: 12px; display:inline-flex; align-items:center;">
+                <span class="status-pulse pulse-green"></span>
+                <span style="color:#60a5fa; font-weight:700; font-size:0.92rem;">OpenAI Active</span>
+                <span style="color:#94a3b8; font-size:0.85rem; margin-left:8px;">(`{get_openai_model()}`) with Physical Telemetry Grounding</span>
+            </div>
+            """, unsafe_allow_html=True)
         else:
-            st.info("⚡ Powered by **Deterministic Fallback Engine** (Offline, zero hallucinations)")
-            if dev_mode and st.session_state.get("gemini_last_error"):
-                st.warning(
-                    f"**API Diagnostic Notice (Dev Mode):**\n\n"
-                    f"`{st.session_state.get('gemini_last_error')}`"
-                )
+            st.markdown("""
+            <div style="background: rgba(100, 116, 139, 0.12); border: 1px solid rgba(100, 116, 139, 0.25); padding: 0.65rem 1.1rem; border-radius: 12px; display:inline-flex; align-items:center;">
+                <span class="status-pulse pulse-amber"></span>
+                <span style="color:#f8fafc; font-weight:700; font-size:0.92rem;">⚡ Deterministic Fallback Engine</span>
+                <span style="color:#94a3b8; font-size:0.85rem; margin-left:8px;">(100% Offline, Zero API Cost, Zero Hallucinations)</span>
+            </div>
+            """, unsafe_allow_html=True)
+
+        if dev_mode and st.session_state.get("gemini_last_error"):
+            st.warning(
+                f"**API Diagnostic Notice (Dev Mode):**\n\n"
+                f"`{st.session_state.get('gemini_last_error')}`"
+            )
+
+    st.markdown("<br>", unsafe_allow_html=True)
 
     # Prepare simulation data for grounding context
     telemetry = get_simulation_profile("summer_peak")
@@ -96,20 +137,20 @@ def render():
     rule_traces = [engine.evaluate_hour(t, appliances=appliances) for t in telemetry]
 
     # ── Quick-Prompt Suggestion Pills ──────────────────────────
-    st.markdown("##### 💡 Suggested Questions")
+    st.markdown("##### 💡 Suggested Questions for Homeowners")
     pills = [
-        "Why was my EV charging delayed to 2:00 AM?",
-        "How much money did the A* optimizer and battery save me today?",
-        "What rules fired to protect my battery reserve?",
-        "What happens if grid prices spike at 6:00 PM?",
+        ("🚗 Why was my EV delayed to 2:00 AM?", "Why was my EV charging delayed to 2:00 AM?"),
+        ("💰 How much money did the optimizer save today?", "How much money did the A* optimizer and battery save me today?"),
+        ("🛡️ What safety rules protected my battery?", "What rules fired to protect my battery reserve?"),
+        ("📈 What happens if grid prices spike at 6 PM?", "What happens if grid prices spike at 6:00 PM?"),
     ]
 
     pill_cols = st.columns(4)
     selected_prompt = None
 
-    for idx, prompt in enumerate(pills):
+    for idx, (label, prompt) in enumerate(pills):
         with pill_cols[idx]:
-            if st.button(prompt, use_container_width=True, key=f"pill_{idx}"):
+            if st.button(label, use_container_width=True, key=f"pill_{idx}"):
                 selected_prompt = prompt
 
     # ── Display Conversation History ───────────────────────────

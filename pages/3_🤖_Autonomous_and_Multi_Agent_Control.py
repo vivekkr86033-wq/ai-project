@@ -16,65 +16,57 @@ import plotly.graph_objects as go
 from src.energy_models import get_default_appliances, get_simulation_profile
 from src.appliance_search import run_astar_search
 from src.multi_agent import run_multi_agent_simulation
+from src.ui_theme import (
+    inject_custom_css,
+    apply_plotly_theme,
+    render_hero_banner,
+    render_sidebar_header,
+    render_sidebar_footer,
+)
 
 
 def render():
-    st.markdown("## 🤖 Autonomous & Multi-Agent System (MAS) Control")
-    st.markdown(
-        "Model residential energy management as a **decentralized Multi-Agent System**. "
-        "Independent sub-agents represent specialized physical subsystems, communicating via "
-        "standardized communicative performatives (`INFORM`, `REQUEST`, `PROPOSE`, `ACCEPT`, `REJECT`, `CONFIRM`) "
-        "and negotiating power shares to prevent tripping the service breaker."
+    inject_custom_css()
+
+    with st.sidebar:
+        render_sidebar_header()
+        st.markdown("#### 🤖 Module Navigation")
+        st.caption("Active Module: **Autonomous & Multi-Agent Control**")
+        st.markdown("---")
+        render_sidebar_footer()
+
+    render_hero_banner(
+        title="🤖 Autonomous & Multi-Agent System (MAS) Control",
+        subtitle="Models smart home energy as a decentralized multi-agent system. Independent physical sub-agents communicate via standardized FIPA performatives (INFORM, REQUEST, PROPOSE, ACCEPT, REJECT, CONFIRM) and negotiate power shares under breaker constraints.",
+        badges=[
+            ("🤝 5-Agent Collaborative MAS", "agent"),
+            ("📡 FIPA Performative Messaging", "ai"),
+            ("⚖️ Breaker Capacity Auctioning", "peak"),
+            ("🔋 Real-Time BESS Arbitrage", "battery"),
+        ],
     )
 
     # ── Agent Architecture Diagram Cards ──────────────────────
-    st.markdown("### 🏛️ Multi-Agent Architecture")
+    st.markdown("### 🏛️ Distributed Multi-Agent Architecture")
     a1, a2, a3, a4, a5 = st.columns(5)
 
-    with a1:
-        st.markdown("""
-        <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:0.8rem; text-align:center;">
-            <div style="font-size:1.5rem;">🌐</div>
-            <div style="font-weight:700; font-size:0.85rem;">Grid Agent</div>
-            <div style="font-size:0.75rem; color:#64748b;">Monitors TOU tariffs, carbon intensity, and emergency DR alerts.</div>
-        </div>
-        """, unsafe_allow_html=True)
+    agents = [
+        (a1, "🌐", "Grid Monitor", "Monitors TOU tariffs, carbon intensity, and emergency DR signals.", "#3b82f6"),
+        (a2, "☀️🔋", "Solar & Storage", "Directs PV dispatch, BESS battery arbitrage, and reserve floor.", "#06b6d4"),
+        (a3, "❄️🔥", "Climate HVAC", "Guarantees 18–26°C comfort via thermodynamic 1R-1C model.", "#10b981"),
+        (a4, "🚗🧺", "Flexible Loads", "Bids for EV, laundry, and dishwasher runtime before deadlines.", "#f59e0b"),
+        (a5, "⚖️", "Coordinator", "Executes priority auctions and arbitrates service breaker capacity.", "#8b5cf6"),
+    ]
 
-    with a2:
-        st.markdown("""
-        <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:0.8rem; text-align:center;">
-            <div style="font-size:1.5rem;">☀️🔋</div>
-            <div style="font-weight:700; font-size:0.85rem;">Solar & Storage</div>
-            <div style="font-size:0.75rem; color:#64748b;">Directs PV generation, battery arbitrage, and reserve buffer.</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with a3:
-        st.markdown("""
-        <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:0.8rem; text-align:center;">
-            <div style="font-size:1.5rem;">❄️🔥</div>
-            <div style="font-weight:700; font-size:0.85rem;">Climate HVAC</div>
-            <div style="font-size:0.75rem; color:#64748b;">Maintains thermal comfort band via thermodynamic 1R-1C model.</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with a4:
-        st.markdown("""
-        <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:0.8rem; text-align:center;">
-            <div style="font-size:1.5rem;">🚗🧺</div>
-            <div style="font-weight:700; font-size:0.85rem;">Flexible Loads</div>
-            <div style="font-size:0.75rem; color:#64748b;">Bids for EV, laundry, and dishwasher runtime before deadlines.</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with a5:
-        st.markdown("""
-        <div style="background:#eff6ff; border:1px solid #93c5fd; border-radius:10px; padding:0.8rem; text-align:center;">
-            <div style="font-size:1.5rem;">⚖️</div>
-            <div style="font-weight:700; font-size:0.85rem; color:#1e40af;">Coordinator</div>
-            <div style="font-size:0.75rem; color:#3b82f6;">Arbitrates power requests and enforces main breaker capacity.</div>
-        </div>
-        """, unsafe_allow_html=True)
+    for col, icon, name, desc, color in agents:
+        with col:
+            st.markdown(f"""
+            <div class="node-box" style="border-top:3px solid {color}; padding:1.1rem 0.8rem; text-align:center;">
+                <div style="font-size:1.8rem; margin-bottom:0.25rem;">{icon}</div>
+                <div style="font-weight:700; font-size:0.92rem; color:#f8fafc; font-family:'Outfit',sans-serif;">{name}</div>
+                <div style="font-size:0.76rem; color:#94a3b8; margin-top:5px; line-height:1.4;">{desc}</div>
+            </div>
+            """, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -85,8 +77,8 @@ def render():
             "Simulation Scenario",
             ["summer_peak", "winter_heating", "critical_event"],
             format_func=lambda x: {
-                "summer_peak": "☀️ Summer Peak Day",
-                "winter_heating": "❄️ Winter Heating Day",
+                "summer_peak": "☀️ Summer Peak Day (High Solar + AC Cooling)",
+                "winter_heating": "❄️ Winter Heating Day (Heat Pump Peak Demand)",
                 "critical_event": "🚨 Critical Demand Response Emergency Day",
             }[x],
         )
@@ -106,7 +98,7 @@ def render():
     )
 
     # ── 24h Coordinated Power Flow Chart ───────────────────────
-    st.markdown("### 📊 24-Hour Coordinated Multi-Agent Power Flow")
+    st.markdown("### 📊 24-Hour Coordinated Multi-Agent Power Dispatch")
 
     hours_x = [f"{s.hour:02d}:00" for s in simulation_steps]
     grid_imports = [s.grid_import_kw for s in simulation_steps]
@@ -120,7 +112,7 @@ def render():
         x=hours_x,
         y=grid_imports,
         name="Grid Import (kW)",
-        marker_color="#3b82f6",
+        marker=dict(color="#3b82f6", opacity=0.8),
     ))
 
     fig_mas.add_trace(go.Scatter(
@@ -135,7 +127,7 @@ def render():
         x=hours_x,
         y=battery_powers,
         mode="lines+markers",
-        name="Battery Power (kW) [>0 Charge, <0 Discharge]",
+        name="Battery Power (kW) [>0 Discharge, <0 Charge]",
         line=dict(color="#10b981", width=2),
     ))
 
@@ -144,23 +136,20 @@ def render():
         y=[max_breaker_kw] * 24,
         mode="lines",
         name=f"Breaker Limit ({max_breaker_kw} kW)",
-        line=dict(color="#ef4444", dash="dash", width=2),
+        line=dict(color="#f87171", dash="dash", width=2),
     ))
 
-    # Secondary axis for Battery SOC %
     fig_mas.add_trace(go.Scatter(
         x=hours_x,
         y=soc_pcts,
         mode="lines",
         name="Battery SOC (%)",
         yaxis="y2",
-        line=dict(color="#8b5cf6", width=2, dash="dot"),
+        line=dict(color="#c084fc", width=2, dash="dot"),
     ))
 
+    apply_plotly_theme(fig_mas, height=420, title="Coordinated Multi-Agent 24-Hour Power Allocations")
     fig_mas.update_layout(
-        height=400,
-        margin=dict(l=40, r=40, t=30, b=30),
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
         barmode="relative",
         xaxis_title="Hour of Day",
         yaxis_title="Power (kW)",
@@ -170,9 +159,8 @@ def render():
             overlaying="y",
             showgrid=False,
             range=[0, 105],
+            tickfont=dict(color="#c084fc"),
         ),
-        template="plotly_white",
-        hovermode="x unified",
     )
 
     st.plotly_chart(fig_mas, use_container_width=True)
@@ -181,7 +169,7 @@ def render():
     st.markdown("### 💬 Inter-Agent Message Passing Protocol Log")
     st.caption("Inspect communicative performatives transmitted between autonomous agents according to FIPA agent interaction standards.")
 
-    sel_step_hour = st.slider("Select Hour to Inspect Agent Dialogue", 0, 23, 18, format="%02d:00")
+    sel_step_hour = st.slider("⏱️ Select Hour to Inspect Agent Dialogue", 0, 23, 18, format="%02d:00")
     active_step = simulation_steps[sel_step_hour]
 
     col_msg, col_dec = st.columns([3, 2])
@@ -189,42 +177,44 @@ def render():
     with col_msg:
         st.markdown(f"#### 📨 Messages Exchanged at Hour {sel_step_hour:02d}:00 ({len(active_step.messages)} messages)")
         if active_step.messages:
+            perf_colors = {
+                "INFORM": ("#3b82f6", "rgba(59, 130, 246, 0.2)"),
+                "REQUEST": ("#f59e0b", "rgba(245, 158, 11, 0.2)"),
+                "PROPOSE": ("#10b981", "rgba(16, 185, 129, 0.2)"),
+                "ACCEPT": ("#34d399", "rgba(52, 211, 153, 0.2)"),
+                "REJECT": ("#f87171", "rgba(248, 113, 113, 0.2)"),
+                "CONFIRM": ("#c084fc", "rgba(192, 132, 252, 0.2)"),
+            }
             for m in active_step.messages:
-                perf_colors = {
-                    "INFORM": "#3b82f6",
-                    "REQUEST": "#eab308",
-                    "PROPOSE": "#10b981",
-                    "ACCEPT": "#059669",
-                    "REJECT": "#ef4444",
-                    "CONFIRM": "#8b5cf6",
-                }
-                badge_c = perf_colors.get(m.performative, "#6b7280")
+                txt_c, bg_c = perf_colors.get(m.performative, ("#94a3b8", "rgba(148, 163, 184, 0.2)"))
 
                 st.markdown(f"""
-                <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:8px; padding:0.7rem 1rem; margin-bottom:0.5rem; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+                <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 0.85rem 1.1rem; margin-bottom: 0.6rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-weight:600; font-size:0.85rem; color:#1e293b;">{m.sender} ➔ {m.receiver}</span>
-                        <span style="background:{badge_c}; color:#ffffff; font-size:0.7rem; font-weight:700; padding:2px 8px; border-radius:4px;">{m.performative}</span>
+                        <span style="font-weight:700; font-size:0.88rem; color:#f8fafc;">{m.sender} &rarr; {m.receiver}</span>
+                        <span style="background:{bg_c}; color:{txt_c}; font-size:0.72rem; font-weight:700; padding:2px 9px; border-radius:9999px; border:1px solid {txt_c}40;">{m.performative}</span>
                     </div>
-                    <div style="font-size:0.85rem; font-weight:500; color:#334155; margin-top:4px;"><b>Topic:</b> {m.topic}</div>
-                    <div style="font-size:0.83rem; color:#64748b; margin-top:2px;">{m.content}</div>
+                    <div style="font-size:0.86rem; font-weight:600; color:#38bdf8; margin-top:5px;">Topic: {m.topic}</div>
+                    <div style="font-size:0.83rem; color:#94a3b8; margin-top:3px; line-height:1.45;">{m.content}</div>
                 </div>
                 """, unsafe_allow_html=True)
         else:
-            st.info("No inter-agent messages transmitted in this hour (idle period).")
+            st.info("ℹ️ No inter-agent messages transmitted in this hour (idle period).")
 
     with col_dec:
         st.markdown(f"#### ⚖️ Coordinator Arbitration Decisions")
         for dec in active_step.agent_decisions:
-            status_badge = "🟢 APPROVED" if dec.status == "APPROVED" else "🔴 CURTAILED"
+            is_app = dec.status == "APPROVED"
+            stat_color = "#34d399" if is_app else "#f87171"
+            stat_bg = "rgba(52, 211, 153, 0.15)" if is_app else "rgba(248, 113, 113, 0.15)"
             st.markdown(f"""
-            <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:0.6rem 0.9rem; margin-bottom:0.5rem;">
-                <div style="display:flex; justify-content:space-between;">
-                    <span style="font-weight:700; font-size:0.85rem;">{dec.agent_name}</span>
-                    <span style="font-size:0.75rem; font-weight:700;">{status_badge}</span>
+            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 0.85rem 1rem; margin-bottom: 0.6rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-weight:700; font-size:0.88rem; color:#f8fafc;">{dec.agent_name}</span>
+                    <span style="background:{stat_bg}; color:{stat_color}; font-size:0.72rem; font-weight:700; padding:2px 8px; border-radius:9999px;">{dec.status}</span>
                 </div>
-                <div style="font-size:0.85rem; color:#0369a1; font-weight:600;">Target Power: {dec.target_power_kw:.2f} kW ({dec.action_type})</div>
-                <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">{dec.reasoning}</div>
+                <div style="font-size:0.85rem; color:#60a5fa; font-weight:600; margin-top:4px;">Power: {dec.target_power_kw:.2f} kW ({dec.action_type})</div>
+                <div style="font-size:0.8rem; color:#94a3b8; margin-top:3px; line-height:1.4;">{dec.reasoning}</div>
             </div>
             """, unsafe_allow_html=True)
 

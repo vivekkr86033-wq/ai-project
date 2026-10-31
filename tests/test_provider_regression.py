@@ -39,8 +39,11 @@ class TestKeyMaskingAndSecurity:
     def test_mask_api_key_empty_or_default(self):
         from src.config import mask_api_key
         assert mask_api_key("") == "Not configured"
-        assert mask_api_key(None) in ["Not configured", "••••••••"]
         assert mask_api_key("your-openai-api-key-here") == "Not configured"
+        with patch("src.config.get_openai_api_key", return_value=""):
+            assert mask_api_key(None) == "Not configured"
+        with patch("src.config.get_openai_api_key", return_value="sk-1234567890abcdef"):
+            assert "••••" in mask_api_key(None)
 
     def test_mask_api_key_secret_masking(self):
         from src.config import mask_api_key
